@@ -1,7 +1,4 @@
-\ProvidesPackage{beamerthemePurdue}
-
-\selectcolormodel{rgb}
-\mode<presentation>
+\ProvidesPackage{beamerthemePurdue} \selectcolormodel{rgb} \mode<presentation>
 
 % custom colors
 % http://www.colorsontheweb.com/colorwizard.asp#wizard, used start set: #535967
@@ -13,21 +10,22 @@
 % F79C32 (orange, mittel)
 % FF7e00 (orange, stark)
 % FFBD00 (orange, gelblich)
-
-\definecolor{i6colorscheme1}{HTML}{000000}  %  e.g. for headline background
+%\usefonttheme{professionalfonts}
+\usefonttheme{serif}
+\definecolor{i6colorscheme1}{HTML}{0058AA}  %  e.g. for headline background
+\definecolor{i6colorscheme7}{HTML}{0058AA}  %  e.g. for headline background
 \definecolor{i6colorscheme2}{HTML}{FFFFFF}  %  e.g. title in headline
 \definecolor{i6colorscheme3}{HTML}{FFFFFF}  %  e.g. for poster background
-\definecolor{i6colorscheme4}{HTML}{F0F0F0}  %  e.g. for block background
-\definecolor{i6colorscheme5}{HTML}{B1946C}  %  e.g. title in headline, separation lines
+\definecolor{i6colorscheme4}{HTML}{FAFAFA}  %  e.g. for block background
+\definecolor{i6colorscheme5}{HTML}{000080}  %  e.g. title in headline, separation lines
 %% old gold: CFB53B E0D5C5
 \definecolor{i6colorscheme6}{HTML}{D5973D}  %  e.g. for alert
 
 % headline colors and fonts
-\setbeamercolor{headline}{fg=white,bg=i6colorscheme1}
-\setbeamercolor{title in headline}{fg=i6colorscheme5}
-\setbeamercolor{author in headline}{fg=white}
-\setbeamercolor{institute in headline}{fg=i6colorscheme3}
-\setbeamercolor{logo in headline}{fg=black,bg=i6colorscheme3}
+\setbeamercolor{headline}{bg=white} \setbeamercolor{title in
+headline}{fg=i6colorscheme7} \setbeamercolor{author in headline}{fg=i6colorscheme7}
+\setbeamercolor{institute in headline}{fg=i6colorscheme7} \setbeamercolor{logo
+in headline}{fg=black,bg=i6colorscheme3}
 
 % lines
 %\setbeamercolor{upper separation line head}{fg=ta2orange}
@@ -41,13 +39,14 @@
 \setbeamercolor*{normal text}{fg=black,bg=i6colorscheme3}
 
 % block environment
-\setbeamercolor*{block body}{bg=i6colorscheme4,fg=black}
-\setbeamercolor*{block title}{fg=i6colorscheme5,bg=i6colorscheme1}
-\setbeamerfont{block title}{size=\large,series=\bf}
+\setbeamercolor*{block body}{bg=i6colorscheme4,fg=black} \setbeamercolor*{block
+title}{fg=i6colorscheme2,bg=i6colorscheme1} \setbeamerfont{block
+title}{size=\large,series=\bf}
 
 % example environment
 \setbeamercolor*{example title}{fg=white,bg=i6colorscheme1}
-\setbeamerfont{example title}{size=\large,series=\bf,bg=i6colorscheme1,fg=white}
+\setbeamerfont{example
+title}{size=\large,series=\bf,bg=i6colorscheme1,fg=white}
 
 \setbeamercolor*{example body}{fg=white,bg=i6colorscheme4}
 \setbeamercolor*{example title}{fg=white,bg=i6colorscheme1}
@@ -61,8 +60,8 @@
 %\setbeamercolor{example text}{fg=taorange}
 %\setbeamercolor{structure}{fg=ta3skyblue}
 
-\setbeamertemplate{itemize items}[triangle]
-\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[triangle] \setbeamertemplate{navigation
+symbols}{}
 
 \setbeamertemplate{block begin}{
   \vskip.75ex
@@ -85,25 +84,20 @@
   \begin{beamercolorbox}[wd=\paperwidth]{headline}
     \begin{columns}[T]
       \begin{column}{.15\paperwidth}
-	\vskip1ex
-	\raggedleft
-	\includegraphics[width=.8\linewidth,keepaspectratio]{purdue_signature.png}
-	\vskip1ex
-      \end{column}
-      \begin{column}{.02\paperwidth}
-      \end{column}
-      \begin{column}{.85\paperwidth}
-%	\hskip2ex
-	\vskip4ex
-%	\raggedright
-	%% \centering
-	%% \usebeamercolor{title in headline}{\color{fg}\textbf{\Large{\inserttitle}\\[1.5ex]}}
-	%% \usebeamercolor{author in headline}{\color{fg}{\Large{\insertauthor}\\[1.5ex]}}
-	%% \usebeamercolor{institute in headline}{\color{fg}{\Large{\insertinstitute}\\[1ex]\ }}
-	\usebeamercolor{title in headline}{\color{fg}\textbf{\Large{\inserttitle}\\[1.5ex]}}
-	\usebeamercolor{author in headline}{\color{fg}{\Large{\insertauthor}\\[0.5ex]}}
-	\usebeamercolor{institute in headline}{\color{fg}{\Large{\insertinstitute}\\[1ex]\ }}
-      \end{column}
+	     \vskip4ex
+	     \raggedleft
+	     \includegraphics[width=.7\linewidth,keepaspectratio]{ijcai2017}
+        \vskip1ex
+    \end{column}
+    \begin{column}{.05\paperwidth}
+    \end{column}
+    \begin{column}{.80\paperwidth}
+    %	\hskip2ex
+	   \vskip4ex
+	   \usebeamercolor{title in headline}{\color{fg}\textbf{\Large{\inserttitle}\\[1.5ex]}}
+	   \usebeamercolor{author in headline}{\color{fg}{\Large{\insertauthor}\\[0.5ex]}}
+	   \usebeamercolor{institute in headline}{\color{fg}{\Large{\insertinstitute}\\[1ex]\ }}
+    \end{column}
     \end{columns}
   \end{beamercolorbox}
 
@@ -125,7 +119,7 @@
       \end{column}
       \begin{column}{.20\paperwidth}
 	\vskip2ex
-	\scriptsize{Fill in attribution}
+	\scriptsize{}
       \end{column}
       \begin{column}{.12\paperwidth}
 	\hfill
@@ -133,8 +127,8 @@
       \begin{column}{.60\paperwidth}
 	\vskip2.5ex
 	\vspace*{\fill}
-	\url{Your url}\hfill
-	\texttt{\{your,names\}@here}
+	\bfseries\url{https://github.com/jiangnanhugo/lmkit}\hfill
+	\texttt{Nan Jiang@Beihang University}
 	\vspace*{\fill}
       \end{column}
       \begin{column}{.2\paperwidth}
