@@ -37,11 +37,13 @@
 
       \begin{block}{Softmax with Over-large Vocabularies}
       \begin{figure}
-      \centering{\includegraphics[width=0.7\linewidth]{lm}}
+      \centering{\includegraphics[width=0.8\linewidth]{lm}}
       \caption{Recurrent Neural Language Model.}
       \end{figure}
-      \begin{equation}\small
-         \log p(w_1,\cdots, w_T ) = \sum_{t=1}^T \log p(w_t | w_{1:t-1}),\quad p(w_i|h)=\frac{\exp(h^\top v_{w_i})}{\sum_{w_j\in \mathcal{V}}{\exp(h^\top v_{w_j} )}}
+      \begin{equation}\begin{split}
+         &\log p(w_1,\cdots, w_T ) = \sum_{t=1}^T \log p(w_t | w_{1:t-1}), \\
+         &\quad p(w_i|h)=\frac{\exp(h^\top v_{w_i})}{\sum_{w_j\in \mathcal{V}}{\exp(h^\top v_{w_j} )}}
+    \end{split}
     \end{equation}
     \begin{itemize}
 	\item \textbf{Vocabulary Truncation:}
@@ -49,14 +51,14 @@
 	\item \textbf{Sampling based Approximation:}
     compute only a tiny fraction of the outputs dimensions to achieve computational efficiency, like Noise contrastive estimation, Importance sampling, Blackout sampling and etc.
 	\item \textbf{Vocabulary Factorization:}
-    decompose the flattened architecture of vocabulary into a class structure (i.e., class-based hierarchical softmax) or hierarchical binary tree (i.e., tree-based hierarchical softmax).
+    decompose the flattened architecture of vocabulary into a class structure (class-based hierarchical softmax) or hierarchical binary tree ( tree-based hierarchical softmax).
     \end{itemize}
       \end{block}
-      
-      
+
+
       \begin{block}{Parallelised Tree-based Hierarchical Softmax}
       \begin{figure}
-      \centering{\includegraphics[width=0.7\linewidth]{thsm}}
+      \centering{\includegraphics[width=0.8\linewidth]{thsm}}
       \caption{Tree-based Hierarchical Softmax. Internal nodes are parameterised by $\theta_i^w$, edges between nodes are parameterised by $d_i^w$, where $d^w$ is a vector and $\theta^w$ is a matrix.}
       \end{figure}
 	probability for internal node $\theta_i^w$:
@@ -67,92 +69,82 @@
     \begin{equation}
     \log p(w|h)=\log\prod_{i=0}^{l^w-1} p(d^w_i|\theta_{i}^w,h) = \sum_{i=0}^{l^w -1} \log\sigma(d_i^w \theta_{i}^w h)=\log\sigma({d^w}^\top \theta^w h)
     \end{equation}
+
     
-    A major advantage: it avoids normalise the probability over the whole vocabulary, as the summarised probabilities of words in the tree equals to one.
-\begin{equation}
-\sum_{w\in \mathcal{V}}{p(w|h)}=\sum_{w \in \mathcal{V}}\sum_{i=0}^{l^w-1}{\sigma(d_i^w\theta_{i}^w h)}=1.
-\end{equation}
     \end{block}
     \end{column}
 
 
     \begin{column}{.3\linewidth}
     
+    A major advantage: it avoids normalise the probability over the whole vocabulary.
+\begin{equation}
+\sum_{w\in \mathcal{V}}{p(w|h)}=\sum_{w \in \mathcal{V}}\sum_{i=0}^{l^w-1}{\sigma(d_i^w\theta_{i}^w h)}=1.
+\end{equation}
 
 	\begin{block}{Why it is faster?}
 Parallelised tree-based cost function:
-    \begin{equation}
-   \ell(\theta|h,w) =-\log\prod_{i=0}^{l^w -1} \sigma(d_i^w \theta_{i}^w h) = -\log \sigma({d^w}^\top \theta^w h)=  \zeta(- {d^w}^\top \theta^w h )
-    \end{equation}
+    \begin{equation}\label{equ:cost}
+\begin{split}
+   \mathcal{L}(\theta|h,w) =&-\log\prod_{i=0}^{l^w -1} \sigma(d_i^w \theta_{i}^w h) \\
+    =& -\log \sigma({d^w}^\top \theta^w h)\\
+    =& \log (1+\exp(- {d^w}^\top \theta^w h )) \\
+    =&  \zeta(- {d^w}^\top \theta^w h )
+\end{split}
+\end{equation}
     Conventional cost function:
-    \begin{equation}
+    \begin{equation}\label{equ:cost2}
     \ell'(\theta|h,w) =\sum_{i=0}^{l^w-1} \{(1-d'^w_i)\log (\sigma(\theta_{i}^w h))  + {d'^w_i}\log (1-\sigma (\theta_{i}^w h))\}
     \end{equation}
     \textbf{Two Main difference:}
 	\begin{itemize}
-	\item tHSM algorithm involves many tiny matrix multiplications, instead in p-tHSM we load all parameters $(d^w, \theta^w)$ directly as 1D vector and 2D matrix at the expense of runtime memory consumption and we consider the multiplications of this vector and giant matrix;
-    \item A compact loss function of the model is deducted and the nodes' log-probability are calculated simultaneously which results in better time efficiency for p-tHSM model.
+	\item Eq.~\ref{equ:cost2} involves many tiny matrix multiplications, instead in Eq.~\ref{equ:cost} we load all parameters $(d^w, \theta^w)$ directly as 1D vector and 2D matrix at the expense of runtime memory consumption and we consider the multiplications of this vector and giant matrix;
+    \item A compact loss function of the model is deducted and the nodes' log-probability are calculated simultaneously which results in better time efficiency for Eq.~\ref{equ:cost}.
 	\end{itemize}
       \end{block}
-      \begin{block}{Experiment setups}
-      \textbf{Dataset Statistics}: Number of tokens for train, valid and test, vocabulary size, and fraction of out-of-vocabulary rate.
-      \begin{table}
-      
-        \setlength{\abovecaptionskip}{0pt}
-        \setlength{\abovedisplayskip}{0pt}
+     
+      \begin{block}{Runtime benchmark}
+      \begin{table}\small
+        \caption{\textbf{Dataset Statistics.}}
         \centering
         \begin{tabular}{l|ccc|ccc|ccc}
         \toprule
         &\multicolumn{3}{c|}{PTB}&\multicolumn{3}{c|}{WikiText-2}&\multicolumn{3}{c}{WikiText-103}  \\
         &train& valid&test&train& valid&test&train & valid &test\\ \midrule
-        Articles  & 2,000& 155& 155& 600& 60& 60& 28,475& 60 & 60\\
         Sents & 42,068   & 3,370  & 3,761 &36,718   & 3,760 & 4,358& 1,801,350   & 3,760 & 4,358 \\\midrule
         Vocab &\multicolumn{3}{c|}{10,000}&\multicolumn{3}{c|}{33,278} & \multicolumn{3}{c}{ 267,735}\\
         OOV &\multicolumn{3}{c|}{4.8\% }&\multicolumn{3}{c|}{2.6\% } & \multicolumn{3}{c}{0.4\%} \\
         \bottomrule
         \end{tabular}
        \end{table}
-       
-       % \vspace{2ex}
-%       \textbf{Metrics}
-%       \begin{itemize}
-%    \item \textbf{Runtime benchmark}: efficiency, scalability, parameters size;
-%    \item \textbf{Perplexity:} the degree of confusion when choosing the next utterance.
-%    \end{itemize}
-      \end{block}
-      \begin{block}{Runtime benchmark}
       \begin{figure}
-      \centering{\includegraphics[width=0.65\linewidth]{rnn_timing}}
-      %\caption{.}
-      \setlength{\abovecaptionskip}{0pt}
-      \setlength{\abovedisplayskip}{0pt}
-      \setlength{\belowcaptionskip}{0pt}
-      \setlength{\belowdisplayskip}{0pt}
+      \centering{\includegraphics[width=0.8\linewidth]{rnn_timing}}
+      \caption{\textbf{Large Vocabulary Problem:} Calculation time of three modules with different recurrent cells on Wikitext-103.}
       \end{figure}
-      \textbf{Large Vocab Problem:} Calculation Time of three modules with different recurrent cells on Wikitext-103.
-      \begin{figure}\small
-      \centering{\includegraphics[width=0.65\linewidth]{all_time}}
-      %\caption{ }
+      
+      \end{block}
+    \end{column}
+
+
+
+    \begin{column}{.3\linewidth}
+    
+    \begin{figure}\small
+      \centering{\includegraphics[width=0.8\linewidth]{all_time}}
+      \caption{\textbf{Scalability:}  cHSM, tHSM and p-tHSM algorithms with different vocabulary size. }
       \setlength{\abovecaptionskip}{0pt}
         \setlength{\abovedisplayskip}{0pt}
         \setlength{\belowcaptionskip}{0pt}
         \setlength{\belowdisplayskip}{0pt}
       \end{figure}
-      \textbf{Scalability:}  cHSM, tHSM and p-tHSM algorithms with different vocabulary size.
-      \end{block}
-    \end{column}
+      
+      
     
-    
-
-    \begin{column}{.3\linewidth}
-    
-    
-    \textbf{Speed Comparison:} Time and memory comparison on GPUs and CPUs with WikiText-103 dataset.
     \begin{table}
     \setlength{\abovecaptionskip}{0pt}
     \setlength{\abovedisplayskip}{0pt}
     \centering
-    %\caption{\label{tab:time}}
+    \caption{\textbf{Speed Comparison:} Time and memory comparison on GPUs and CPUs with WikiText-103 dataset.}
     \begin{tabular}{lccccc}
     \toprule
     &Runtime &\multicolumn{2}{c}{Total (ms)} & \multicolumn{2}{c}{Forward (ms)}   \\
@@ -168,13 +160,13 @@ Parallelised tree-based cost function:
 
       \begin{block}{Perplexity Results}
 
-    \textbf{Word Clustering Strategy Analysis}: apply different clustering methods to initialise the distribution of words over the tree.
+    
     \begin{table}
-   
+
     \setlength{\abovecaptionskip}{0pt}
     \setlength{\abovedisplayskip}{0pt}
   \centering
-  %\caption{Perplexity of p-tHSM method with various hierarchical clustering algorithms on PTB Dataset.\label{table:clustering}}
+  \caption{\textbf{Word Clustering Strategy Analysis}: apply different clustering methods to initialise the distribution of words over the tree.}
   \begin{tabular}{lcc} \toprule
   Methods   & Valid & Test   \\ \midrule
   Random Shuffle &199.62 &  189.37\\
@@ -186,12 +178,12 @@ Parallelised tree-based cost function:
 \end{table}
 
 \vspace{3ex}
-\textbf{All Experiments Benchmark:} Perplexity benchmark on validation and testing dataset with PTB, WikiText-2 and WikiText-103 corpus.
+
 \begin{table}
 \setlength{\abovecaptionskip}{0pt}
 \setlength{\abovedisplayskip}{0pt}
   \centering
-  %\caption{Perplexity benchmark on validation and testing dataset with PTB, WikiText-2 and WikiText-103 corpus.}\label{tab:summary}
+  \caption{\textbf{All Experiments Benchmark:} Perplexity benchmark on validation and testing dataset with PTB, WikiText-2 and WikiText-103 corpus.}
 \begin{tabular}{lcccccc}
   \toprule
   & \multicolumn{2}{c}{PTB} & \multicolumn{2}{c}{WikiText-2} & \multicolumn{2}{c}{WikiText-103} \\
@@ -210,9 +202,9 @@ GRU + p-tHSM + Brown &133.12&128.78       &186.23&189.58 &\textbf{164.15}& \text
 
       \begin{block}{Our Contributions}
 	\begin{itemize}
-	\item We propose a parallelised mathematical model for modeling vanilla hierarchical softmax algorithm, making it compatible with GPUs;
-    \item Aiming at improving its stability, we employ several n-gram based and semantic clustering algorithms to initialise the word hierarchy before the training stage;
-    \item We conducted empirical analysis and comparisons on the standard PTB, WikiText-2 and WikiText-103 datasets with other traditional optimisation methods to assess its efficiency and accuracy on GPUs and CPUs.
+	\item Propose a parallelised model for modeling tree-based hierarchical softmax algorithm over GPUs;
+    \item Employ several clustering algorithms to initialise the word hierarchy before the training stage;
+    \item Conduct empirical analysis on PTB, WikiText-2 and WikiText-103 datasets with other optimisation methods.
 	\end{itemize}
       \end{block}
     \end{column}
